@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Title</title>
+    <meta charset="utf-8">
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+      body { font-family: 'Droid Serif'; }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: normal;
+      }
+      .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+      .remark-inline-code {
+        background-color: #DCDCC6;
+        padding: .2em .4em;
+        font-size: 90%;
+      }
+
+      .footnote {
+        position: absolute;
+        bottom: 3em;
+      }
+      code {
+        border-radius: 5px;
+      }
+    </style>
+</head>
+<body>
+<textarea id="source">
+
+class: center, middle
+
+# Scala for beginners
+
+---
+
+# Agenda
+
+1. Introduction
+2. Start programming
+3. Basics
+4. ...
+
+---
+
+# Introduction
+## Why Scala ?
+--
+
+> A problem well put is half solved.
+
+John Dewey
+
+<br>
+> A scalable programming language is one in which the same concepts can describe small as well as large parts.
+
+Martin Odersky
+
+---
+# In a few words
+
+- Scala is a **general purpose** programming language
+
+- Scala is **object oriented**
+
+- Scala is **statically typed**
+
+- Scala enables both **functional programming** and **imperative programming**
+
+---
+class: center, middle
+
+# 2. Start programming
+
+---
+# Start programming
+## Hello world
+
+```scala
+object HelloWorld extends App {
+  println("Hello world")
+}
+```
+
+.footnote[`a_hello/A_HelloWorld.scala`]
+
+---
+## Running a scala program
+
+- Install [sbt](https://www.scala-sbt.org/)
+
+- Start sbt from root folder of this repo
+
+- Run your main class:
+
+```text
+% sbt
+sbt:scala-beginner> runMain a_hello.A_HelloWorld
+```
+
+_ tab autocompletion works with sbt _
+
+---
+## Using the REPL
+
+```text
+sbt> console
+[info] Starting scala interpreter...
+Welcome to Scala 2.12.8 (Java HotSpot(TM) 64-Bit Server VM, Java 1.8.0_162).
+Type in expressions for evaluation. Or try :help.
+
+scala> println("hello !")
+hello !
+
+scala> 1+1
+res1: Int = 2
+```
+
+---
+## Scala flexible syntax
+
+```
+"The 'Hello world' string" should {
+  "contain 11 characters" in {
+    "Hello world" must have size (11)
+  }
+}
+```
+
+```
+class PingPong extends Actor {
+  def receive = {
+    case x => sender ! x
+  }
+}
+```
+
+```
+class ExprParser extends RegexParsers {
+  def factor = "[0-9]+".r | "("~expr~")"
+  def term = factor~("*" | "/")~factor
+  def expr = term~("+" | "-")~term
+}
+```
+
+---
+class: center, middle
+
+# 3. Basics
+
+---
+# Basics
+
+```
+val x = 32
+
+val y = x + 10
+
+val name = "Scala"
+
+var i = 0
+i = 1
+
+def lesson = "Values and types"
+```
+
+- `val` for value == imutable reference
+
+- `var` for variable == mutable reference
+
+- `def` for definition == evaluated each time it's called
+
+.footnote[_b_basics/A_Values.scala_]
+
+---
+# Values and types
+
+Type is infered by the compiler but it can also be supplied
+
+```
+val x: Int = 32
+
+val name: String = "Scala"
+
+def lesson: String = "Types"
+
+def hello(to: String) = println(s"Hello $to !")
+```
+.footnote[_b_basics/B_Types.scala_]
+
+---
+# Common types
+
+Numeric:
+- `Int` : 32 bits signed integer
+- `Long`: 64 bits signed integer
+- `Float` : 32 bits floating point
+- `Double`: 64 bits floating point
+
+Other:
+- `Boolean`: `true` or `false`
+- `String`
+
+---
+# Method calls
+
+```
+"Hello World".size
+```
+
+- Methods are applied on values using the **dot notation**
+
+```
+1.to(10)
+```
+
+.footnote[_b_basics/C_Methods.scala_]
+
+--
+
+- Infix syntax can be used
+
+```
+1 to 10
+```
+
+---
+# Operators are just methods
+
+```
+1 + 3 == 1.+(3)
+
+"Hello " + "world" == "Hello ".+("world")
+```
+
+The unification of methods and operators makes the language simplier
+
+.footnote[_b_basics/D_Operators.scala_]
+
+---
+# Exercise
+
+- Use the methods `abs` to get the absolute value of `-42`
+
+- Use `toUpperCase` to upper case your name
+
+---
+# Types guide you
+
+- Types forbid you to combine values in a wrong way
+
+```text
+scala> 1 to "10"
+1 to "10"
+<console>:12: error: type mismatch;
+ found   : String("10")
+ required: Int
+       1 to "10"
+            ^
+```
+
+---
+# Functions
+
+Functions are expressions that take parameters.
+
+```
+val addOne = (x: Int) => x + 1
+println(addOne(1)) // 2
+```
+
+On the left of `=>` is a list of parameters. On the right is an expression involving the parameters.
+
+Functions may take multiple parameters
+
+```
+val add = (x: Int, y: Int) => x + y
+println(add(1, 2)) // 3
+```
+---
+# Methods
+
+```
+def add(x: Int, y: Int): Int = x + y
+
+// multi parameters list
+def addThenMultiply(x: Int, y: Int)(multiplier: Int): Int = (x + y) * multiplier
+
+// no parameters
+def name: String = System.getProperty("user.name")
+
+// multiline
+def getSquareString(input: Double): String = {
+  val square = input * input
+  square.toString
+}
+```
+
+The last expression of a block is returned.
+
+_Pro Tips:_ Avoid using `return`
+
+---
+# Classes
+
+```
+class Greeter(prefix: String) {
+  def greet(name: String): Unit = {
+    println(s"Hello $prefix $name")
+  }
+}
+
+val greeter = new Greeter("little")
+greeter.greet("world") // Hello little world
+```
+
+- You use the `class` keyword to define a class.
+
+- A class can be instantiated with the `new` keyword
+
+---
+# Case classess
+
+A `case class` is a special class. By default they are immutable
+
+```
+case class Point(x: Int, y: Int)
+
+val point = Point(10, 10)
+val otherPoint = Point(10, 10)
+
+println(point) // Point(10,10)
+point == otherPoint // true
+```
+
+---
+# Objects
+
+Objects are single instances of their own definitions. You can think of them as singletons of their own classes.
+
+You can define objects with the object keyword.
+
+```
+object IdFactory {
+  private var counter = 0
+  def create(): Int = {
+    counter += 1
+    counter
+  }
+}
+```
+
+```
+val newId: Int = IdFactory.create()
+println(newId) // 1
+val newerId: Int = IdFactory.create()
+println(newerId) // 2
+```
+
+</textarea>
+
+<script src="https://remarkjs.com/downloads/remark-latest.min.js">
+</script>
+<script>
+      var slideshow = remark.create({
+        "highlightLanguage": "scala",
+        "highlightStyle": "solarized-dark",
+        "highlightLines": true
+      });
+    </script>
+</body>
+</html>
