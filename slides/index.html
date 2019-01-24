@@ -44,7 +44,8 @@ class: center, middle
 1. Introduction
 2. Start programming
 3. Basics
-4. ...
+4. Standard Library
+5. ...
 
 ---
 
@@ -360,6 +361,387 @@ val newId: Int = IdFactory.create()
 println(newId) // 1
 val newerId: Int = IdFactory.create()
 println(newerId) // 2
+```
+
+---
+# Traits
+
+```
+trait WithSize {
+  def size: Int // abstract method
+  def isEmpty: Boolean = size == 0 // method with default implementation
+}
+```
+
+```
+case class Classroom(nbStudents: Int) extends WithSize {
+  def size = nbStudents
+}
+
+val scalaClassroom = Classroom(32)
+scalaClassroom.isEmpty // false
+```
+
+---
+# Sealed trait
+
+A sealed trait is a trait where **all sub classes** are defined in the **same file**
+
+```
+sealed trait SchoolPersonnel { def name: String }
+
+case class Student(name: String) extends SchoolPersonnel
+case class Teacher(name: String, subject: String) extends SchoolPersonnel
+```
+
+--
+Enum example
+```
+sealed trait Weekday
+case object Monday extends Weekday
+case object Tuesday extends Weekday
+case object Wednesday extends Weekday
+...
+```
+
+---
+# Modeling the world
+
+The combination of `sealed trait` and `case class` gives a convenient way to model information in terms of **is** and **has** relationships
+
+--
+- A line is ego-left or ego-right:
+
+    - `Line` _sealed trait_ extended by `EgoLeft` and `EgoRight`
+
+- A car has a color and a position
+
+    - `Car` _case class_ has `color` and `position` members
+
+---
+# Exercise
+
+Model the following domain in Scala:
+
+- A course has a name and a difficulty level
+- A difficulty level is either “beginner”, “intermediate” or “advanced”
+
+Can you then define a course named “Programming in Scala” targetting beginners?
+
+---
+# Control Flow
+
+```
+val name = "Scala lessons"
+val greatness = if (name.contains("Scala")) {
+  "Awesome"
+} else {
+  "Regular"
+}
+```
+
+```
+var i = 0
+while(i < 10) {
+  println(s"Count is $i")
+  i += 1
+}
+```
+
+---
+# Pattern matching
+
+Syntax:
+```
+val x: Int = scala.util.Random.nextInt(10)
+val howMany = x match {
+  case 0 => "zero"
+  case 1 => "one"
+  case 2 => "two"
+  case _ => "many"
+}
+
+println(s"Value $x is $howMany")
+```
+
+---
+# Pattern matching on case class
+
+```
+sealed trait Shape
+case class Rectangle(width: Int, height: Int) extends Shape
+case class Triangle(width: Int, height: Int) extends Shape
+case class Circle(radius: Int) extends Shape
+```
+
+```
+def showShape(shape: Shape) = shape match {
+  case Rectangle(w, h) => s"Rectangle of width=$w and height=$h"
+  case Triangle(w, h) => s"Triangle of width=$w and height=$h"
+  case Circle(r) => s"Circle of radius=$r"
+}
+
+println(showShape(Circle(10)))
+```
+
+---
+# Pattern matching
+
+- With guard
+
+```
+def isSquare(shape: Shape): Boolean = {
+  case Rectangle(w, h) if w == h => true
+  case _ => false
+}
+```
+
+- On type
+
+```
+def showShape(shape: Shape) = shape match {
+  case r: Rectangle => s"Rectangle of width=${r.width} and height=${r.height}"
+  case t: Triangle => s"Triangle of width=${t.width} and height=${t.height}"
+  case Circle(r) => s"Circle of radius=$r"
+}
+```
+
+_This is the same as `isInstanceOf`_
+
+---
+# Exercise
+
+Define a function that takes a course in input and returns a grade:
+
+- if the name of the course contains "Scala" returns a 10
+- if the difficulty is low, returns a 8
+- if the difficulty is high but the name contains "Python" returns a 9
+- else returs a 5
+
+---
+class: center, middle
+
+# 4. Standard Library
+
+---
+# Option
+
+```
+sealed trait Option[A]
+case class Some[A](value: A) extends Option[A]
+case object None extends Option[Nothing]
+```
+
+```
+Seq.empty[String].headOption
+Seq("foo", "bar").headOption
+
+Map("foo" -> 1, "bar").get("foo")
+```
+
+---
+# Option
+
+How to deal with them ?
+
+--
+- Pattern Matching
+
+```
+val opt = Option(3)
+opt match {
+  case Some(x) => println(s"Got value $x")
+  case None => println("No value :(")
+}
+```
+--
+- Functional construct
+
+```
+val opt = Option(3)
+opt.fold(println("No value :("))(x => println("Got value $x"))
+
+// see also .map, .flatMap, .filter, .getOrElse
+```
+
+---
+# Either
+
+Used to represent a value that can be type `A` or `B`
+
+Eg.: The return of an api call is an error or a String:
+
+```
+def getResultFromServer(): Either[Error, Int] = ???
+
+val result = getResultFromServer()
+
+result match {
+  case Right(x) => println(s"server result is $x")
+  case Left(error) => println(s"Got error when getting result: $error")
+}
+```
+--
+When dealing with errors, by convention the left type represents the error and the right type the value.
+
+Due to that, `Either` is _right-biased_: `.map`, `.filter` functions will apply on the right type
+
+```
+val doubleResult: Either[Error, Int] = result.map(x => x * 2)
+```
+
+---
+# Exercise
+
+- Create a function `makeEasier` that takes a `Course` as input and returns a new course with a lower difficulty level.
+If the difficulty is already the lowest, returns a None
+
+- Create a function `makeForNoobs` that takes a `Course` as input and makes it twice easier
+
+---
+# Standard Collection
+
+`scala.collection`
+
+.center[![scala.collection](https://docs.scala-lang.org/resources/images/tour/collections-diagram.svg)]
+
+---
+background-image: url(https://docs.scala-lang.org/resources/images/tour/collections-immutable-diagram.svg)
+
+# Standard Collection
+
+`scala.collection.immutable`
+
+---
+background-image: url(https://docs.scala-lang.org/resources/images/tour/collections-mutable-diagram.svg)
+background-size: 100%
+
+# Standard Collection
+
+`scala.collection.mutable`
+
+---
+# Standard Collection Overview
+
+```
+Traversable(1, 2, 3)
+Iterable("x", "y", "z")
+Map("x" -> 24, "y" -> 25, "z" -> 26)
+Set(Color.red, Color.green, Color.blue)
+SortedSet("hello", "world")
+Buffer(x, y, z)
+IndexedSeq(1.0, 2.0)
+LinearSeq(a, b, c)
+
+// Specific implems
+List(1, 2, 3)
+HashMap("x" -> 24, "y" -> 25, "z" -> 26)
+```
+
+---
+# Seq, List, Vector
+
+```
+val xs = Seq(1, 2, 3)
+
+xs(0) // 1
+xs(10) // throw Exception
+xs.length // 3
+
+xs.map(x => x + 1) // Seq(2, 3, 4)
+xs.filter(x => x > 1) // Seq(2, 3)
+val (evens, ods) = xs.span(x => x % 2 == 0) // (Seq(2), Seq(1, 3))
+
+List(1, 2, 3)
+Vector(1, 2, 3)
+```
+
+---
+# Map
+
+```
+val capitals = Map(
+  "France" -> "Paris",
+  "USA" -> "Washington",
+  "China" -> "Beijing"
+)
+
+capitals("France") // "Paris"
+capitals.get("France") // Some("Paris")
+capitals.get("Argentina") // None
+
+capitals.getOrElse("Argentina", "Unknown")
+
+val updated = capitals ++ Map("Argentina" -> "Buenos Aires")
+```
+
+---
+# Set
+
+```
+val colors = Set("red", "green", "blue")
+
+colors.contains("red")
+colors.contains("white")
+
+colors intersect Set("red", "white")
+colors union Set("red", "white")
+colors diff Set("red", "white")
+```
+
+---
+# Exercise
+
+Create a class `CourseCatalog` that contains a catalog of `Course`. On this `CourseCatalog` a user should be able to:
+
+  - `listByDifficulty(difficulty)`: get the list of `Course` according to a difficulty
+
+  - `search(query)`: get the list of `Course` where the name contains the user query
+
+  - `getNames`: get the names of all the courses
+
+  - `getStats`: returns the number of course by difficulty: `beginner -> 3, intermediate -> 2, advanced -> 4`
+
+---
+# For comprehension
+
+```
+val image: Image = ???
+val pixels: Seq[Pixel] = (0 until image.width).flatMap { x =>
+  (0 until image.height).map { y =>
+    Pixel(x, y)
+  }
+}
+```
+--
+This can be rewritten as
+
+```
+val pixels = for {
+  x <- 0 until image.width
+  y <- 0 until image.height
+} yield Pixel(x, y)
+```
+
+---
+# For comprehension
+
+for comprehension are just syntatic sugar. The compiler will translate them to `.map` `.flatMap`
+
+They work on all types that define a `.map` `flatMap`
+
+```
+def getServerResult(): Either[Error, Int] = ???
+def runCalculation(input: Int): Either[Error, Calculation] = ???
+def storeCalculation(calc: Calculation): Either[Error, Id] = ???
+
+val storageId = for {
+  result <- getServerResult()
+  calculation <- runCalculation(result)
+  id <- storeCalculation(calculation)
+} yield id
+
+storageId // Either[Error, Id]
 ```
 
 </textarea>
