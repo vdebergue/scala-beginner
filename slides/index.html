@@ -490,7 +490,7 @@ println(showShape(Circle(10)))
 - With guard
 
 ```
-def isSquare(shape: Shape): Boolean = {
+def isSquare(shape: Shape): Boolean = shape match {
   case Rectangle(w, h) if w == h => true
   case _ => false
 }
