@@ -536,7 +536,7 @@ case object None extends Option[Nothing]
 Seq.empty[String].headOption
 Seq("foo", "bar").headOption
 
-Map("foo" -> 1, "bar").get("foo")
+Map("foo" -> 1, "bar" -> 2).get("foo")
 ```
 
 ---
@@ -742,6 +742,380 @@ val storageId = for {
 } yield id
 
 storageId // Either[Error, Id]
+```
+
+---
+# Future
+
+- Futures provide a way to reason about performing many operations in parallel– in an efficient and non-blocking way
+
+- A Future is a placeholder object for a value that may not yet exist
+
+- Composing concurrent tasks in this way tends to result in faster, asynchronous, non-blocking parallel code.
+
+```
+implicit val ec: ExecutionContext = ...
+val inverseFuture : Future[Matrix] = Future {
+  fatMatrix.inverse() // non-blocking long lasting computation
+} // ec is implicitly passed
+```
+
+--
+
+```
+// equivalent to
+val inverseFuture: Future[Matrix] = Future {
+  fatMatrix.inverse() // non-blocking long lasting computation
+}(executionContext)
+```
+
+--
+
+The code delegates the execution of `fatMatrix.inverse()` to an `ExecutionContext` and embody the result of the computation in `inverseFuture`
+
+---
+# Future
+
+A `Future` is an object holding a value which may become available at some point. This value is usually the result of some other computation:
+
+- If the computation has not yet completed, we say that the `Future` is **not completed**.
+
+- If the computation has completed with a value or with an exception, we say that the `Future` is **completed**.
+
+--
+
+Completion can take one of two forms:
+
+- When a `Future` is completed with a value, we say that the `Future` was successfully completed with that value.
+
+- When a `Future` is completed with an exception thrown by the computation, we say that the `Future` was failed with that exception.
+
+--
+A `Future` has an important property that it may only be assigned once
+
+Once a Future object is given a value or an exception, it becomes in effect **immutable**
+
+---
+# Future
+
+```
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
+
+println("Starting...")
+val myValue = Future {
+  Thread.sleep(1000)
+  println("Computed my value")
+  2 + 2
+}
+
+println("Creating double result")
+val doubleValue = myValue.map(_ * 2)
+
+doubleValue.foreach{ result =>
+  println(s"My result is $result")
+}
+
+println("Done or not ?")
+```
+
+What does the console stdout looks like ?
+
+---
+# Future
+
+Let's make a cake !
+```
+val chocolate: Chocolate = Chocolate(black=0.80)
+val eggs: List[Egg] = List.fill(3)(Egg)
+val flour: Flour = Flour.White
+
+// Functions alreay provided for us
+def shopForMilk(): Future[Milk] = ...
+def prepareCakeDough(milk: Milk, eggs: Seq[Egg], flour: Flour): Future[CakeDough] = ...
+def cookCake(chocolate: Chocolate, dough: CakeDough): Future[Cake] = ...
+
+// My cooking:
+val cake: Future[Cake] = ???
+```
+
+---
+# Future
+
+Let's make a cake !
+```
+val chocolate: Chocolate = Chocolate(black=0.80)
+val eggs: List[Egg] = List.fill(3)(Egg)
+val flour: Flour = Flour.White
+
+// Functions alreay provided for us
+def shopForMilk(): Future[Milk] = ...
+def prepareCakeDough(milk: Milk, eggs: Seq[Egg], flour: Flour): Future[CakeDough] = ...
+def cookCake(chocolate: Chocolate, dough: CakeDough): Future[Cake] = ...
+
+// My cooking:
+val cake: Future[Cake] = shopForMilk.flatMap { milk =>
+  prepareCakeDough(milk, eggs, flour).flatMap { dough =>
+    cookCake(chocolate, dough)
+  }
+}
+```
+
+---
+# Future
+
+Let's make a cake !
+```
+val chocolate: Chocolate = Chocolate(black=0.80)
+val eggs: List[Egg] = List.fill(3)(Egg)
+val flour: Flour = Flour.White
+
+// Functions alreay provided for us
+def shopForMilk(): Future[Milk] = ...
+def prepareCakeDough(milk: Milk, eggs: Seq[Egg], flour: Flour): Future[CakeDough] = ...
+def cookCake(chocolate: Chocolate, dough: CakeDough): Future[Cake] = ...
+
+// My cooking:
+val cake: Future[Cake] = for {
+  milk <- shopForMilk()
+  dough <- prepareCakeDough(milk, eggs, flour)
+  cake <- cookCake(chocolate, dough)
+} yield cake
+```
+---
+
+class: center, middle
+
+# 5. Typeclasses
+
+---
+# Typeclasses
+
+## The problem
+
+A library provides a class `LibList`
+
+```
+case class LibList[T](elements: Seq[T]) {
+  override def toString(): "--LibList--"
+}
+```
+
+The `toString` method defined here is not really helpfull but we can't change it !
+
+How can we have a string representation of `LibList` that prints the elements contained in the list ?
+
+---
+# Typeclasses
+
+## Solution 1: write your own function
+
+```
+def show[T](list: LibList[T]): String = {
+  s"LibList(${list.elements.mkString(", ")})"
+}
+```
+
+```
+// Test cases
+
+show(LibList(Seq("a", "b", "c")))
+// LibList(a, b, c)
+
+show(LibList(Seq(LibList("a"), LibList("b"))))
+// LibList(--LibList--, --LibList--)
+```
+
+---
+# Typeclasses
+
+## Solution 2: Runtime introspection
+
+```
+def show[T](list: LibList[T]): String = {
+  def showElement(t: T): String = {
+    case t: LibList => show(t)
+    case _ => t.toString
+  }
+  s"LibList(${list.elements.map(showElement).mkString(", ")})"
+}
+```
+
+```
+show(LibList(Seq( LibMap("a" -> 1) )))
+```
+
+--
+This approach does not scale with the number of cases to handle !
+
+---
+# Typeclasses
+
+## Solution 3: Typeclass or how to make the compiler do all the work
+
+```
+trait Show[A] {
+  def show(a: A): String
+}
+```
+
+It's a trait that contains the same function as before !
+
+```
+// define some implementations of Show for our types
+val intShow = new Show[Int] {
+  def show(int: Int): String = int.toString
+}
+
+// use it
+intShow.show(42)
+```
+---
+# Typeclasses
+
+Have the compiler do the work:
+```
+def showWithImplicits[A](a: A)(implicit show: Show[A]): String = {
+  show.show(a)
+}
+
+implicit val intShowImplicit = intShow
+showWithImplicits(42)
+```
+
+---
+# Typeclasses
+
+Define an implicit class for our `LibList`
+
+```
+implicit def libListShow[T](implicit showT: Show[T]): Show[LibList[T]] =
+  new Show[LibList[T]] {
+    def show(liste: LibList[T]): String = {
+      s"LibList(${list.elements.map(e => showT.show(e)).mkString(", ")})"
+    }
+  }
+```
+
+- Our typeclass depends on an other implicit `showT: Show[T]`
+- The compiler will find **at compile time** a matching implicit
+
+```
+showWithImplicits(LibList(Seq(LibList(1), LibList(2))))
+```
+
+Will resolve implicits:
+- `Show[LibList[LibList[Int]]]`
+- `Show[LibList[Int]]`
+- `Show[Int]`
+
+---
+# Typeclasses
+
+## Other problem: writing json
+
+```
+sealed trait Json
+object Json{
+  case class Str(s: String) extends Json
+  case class Num(value: Double) extends Json
+  case class Arr(values: Seq[Json]) extends Json
+  // ... many more definitions
+}
+
+def convertToJson(x) // converts x to a Json object
+```
+
+How to implement `convertToJson` ?
+
+---
+# Typeclasses
+
+## Solution 1: `Any`
+
+```
+def convertToJson(x: Any): Json = {
+  x match{
+    case s: String => Json.Str(s)
+    case d: Double => Json.Num(d)
+    case i: Int => Json.Num(i.toDouble)
+    // maybe more cases for float, short, etc.
+  }
+}
+```
+
+What about:  `convertToJson(new java.io.File("."))` ?
+
+---
+# Typeclasses
+
+## Solution 2: Using implicits
+
+```
+trait Jsonable[T]{
+  def serialize(t: T): Json
+}
+object Jsonable{
+  implicit object StringJsonable extends Jsonable[String]{
+    def serialize(t: String) = Json.Str(t)
+  }
+  implicit object DoubleJsonable extends Jsonable[Double]{
+    def serialize(t: Double) = Json.Num(t)
+  }
+  implicit object IntJsonable extends Jsonable[Int]{
+    def serialize(t: Int) = Json.Num(t.toDouble)
+  }
+}
+```
+
+```
+def convertToJson[T](x: T)(implicit converter: Jsonable[T]): Json = {
+  converter.serialize(x)
+}
+```
+
+---
+# Typeclasses
+
+Usage:
+
+```
+convertToJson("hello") // Json.Str("hello")
+
+convertToJson(123) // Json.Num(123.0)
+
+convertToJson(new java.io.File("."))
+// Compilation error
+// could not find implicit value for parameter converterJsonable[java.io.File]
+```
+
+---
+# Exercise
+
+From the previous definitions, write a `Jsonable[Seq[T]]` to convert a `Seq[T]` into a `Json` value
+
+```
+trait Jsonable[T]{
+  def serialize(t: T): Json
+}
+object Jsonable{
+  implicit object StringJsonable extends Jsonable[String]{
+    def serialize(t: String) = Json.Str(t)
+  }
+  implicit object DoubleJsonable extends Jsonable[Double]{
+    def serialize(t: Double) = Json.Num(t)
+  }
+  implicit object IntJsonable extends Jsonable[Int]{
+    def serialize(t: Int) = Json.Num(t.toDouble)
+  }
+
+  // SeqJsonable:
+}
+```
+
+```
+// To test
+convertToJson(Seq(Seq(Seq(1, 2, 3))))
 ```
 
 </textarea>
