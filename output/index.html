@@ -82,7 +82,7 @@ class: center, middle
 # Start programming
 ## Hello world
 
-```scala mdoc
+```scala
 object HelloWorld extends App {
   println("Hello world")
 }
@@ -157,14 +157,18 @@ class: center, middle
 ---
 # Basics
 
-```scala mdoc
+```scala
 val x = 32
+// x: Int = 32
 
 val y = x + 10
+// y: Int = 42
 
 val name = "Scala"
+// name: String = "Scala"
 
 var i = 0
+// i: Int = 0
 i = 1
 
 def lesson = "Values and types"
@@ -183,10 +187,12 @@ def lesson = "Values and types"
 
 Type is infered by the compiler but it can also be supplied
 
-```scala mdoc:reset
+```scala
 val x: Int = 32
+// x: Int = 32
 
 val name: String = "Scala"
+// name: String = "Scala"
 
 def lesson: String = "Types"
 
@@ -210,14 +216,16 @@ Other:
 ---
 # Method calls
 
-```scala mdoc
+```scala
 "Hello World".size
+// res2: Int = 11
 ```
 
 - Methods are applied on values using the **dot notation**
 
-```scala mdoc
+```scala
 1.to(10)
+// res3: Range.Inclusive = Range(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
 ```
 
 .footnote[_b_basics/C_Methods.scala_]
@@ -226,17 +234,20 @@ Other:
 
 - Infix syntax can be used
 
-```scala mdoc
+```scala
 1 to 10
+// res4: Range.Inclusive = Range(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
 ```
 
 ---
 # Operators are just methods
 
-```scala mdoc
+```scala
 1 + 3 == 1.+(3)
+// res5: Boolean = true
 
 "Hello " + "world" == "Hello ".+("world")
+// res6: Boolean = true
 ```
 
 The unification of methods and operators makes the language simplier
@@ -255,8 +266,13 @@ The unification of methods and operators makes the language simplier
 
 - Types forbid you to combine values in a wrong way
 
-```scala mdoc:fail
+```scala
 1 to "10"
+// error: type mismatch;
+//  found   : String("10")
+//  required: Int
+// 1 to "10"
+//      ^^^^
 ```
 
 ---
@@ -264,25 +280,29 @@ The unification of methods and operators makes the language simplier
 
 Functions are expressions that take parameters.
 
-```scala mdoc
+```scala
 val addOne = (x: Int) => x + 1
+// addOne: Int => Int = <function1>
 
 println(addOne(1))
+// 2
 ```
 
 On the left of `=>` is a list of parameters. On the right is an expression involving the parameters.
 
 Functions may take multiple parameters
 
-```scala mdoc
+```scala
 val add = (x: Int, y: Int) => x + y
+// add: (Int, Int) => Int = <function2>
 
 println(add(1, 2)) // 3
+// 3
 ```
 ---
 # Methods
 
-```scala mdoc:reset
+```scala
 def add(x: Int, y: Int): Int = x + y
 
 // multi parameters list
@@ -305,7 +325,7 @@ _Pro Tips:_ Avoid using `return`
 ---
 # Classes
 
-```scala mdoc
+```scala
 class Greeter(prefix: String) {
   def greet(name: String): Unit = {
     println(s"Hello $prefix $name")
@@ -313,8 +333,10 @@ class Greeter(prefix: String) {
 }
 
 val greeter = new Greeter("little")
+// greeter: Greeter = repl.Session$App10$Greeter@278a6ab7
 
 greeter.greet("world")
+// Hello little world
 ```
 
 - You use the `class` keyword to define a class.
@@ -326,15 +348,19 @@ greeter.greet("world")
 
 A `case class` is a special class. By default they are immutable
 
-```scala mdoc
+```scala
 case class Point(x: Int, y: Int)
 
 val point = Point(10, 10)
+// point: Point = Point(10, 10)
 val otherPoint = Point(10, 10)
+// otherPoint: Point = Point(10, 10)
 
 println(point)
+// Point(10,10)
 
 point == otherPoint
+// res13: Boolean = true
 ```
 
 ---
@@ -344,7 +370,7 @@ Objects are single instances of their own definitions. You can think of them as 
 
 You can define objects with the object keyword.
 
-```scala mdoc
+```scala
 object IdFactory {
   private var counter = 0
   def create(): Int = {
@@ -354,29 +380,33 @@ object IdFactory {
 }
 ```
 
-```scala mdoc
+```scala
 val newId: Int = IdFactory.create()
+// newId: Int = 1
 
 val newerId: Int = IdFactory.create()
+// newerId: Int = 2
 ```
 
 ---
 # Traits
 
-```scala mdoc
+```scala
 trait WithSize {
   def size: Int // abstract method
   def isEmpty: Boolean = size == 0 // method with default implementation
 }
 ```
 
-```scala mdoc
+```scala
 case class Classroom(nbStudents: Int) extends WithSize {
   def size = nbStudents
 }
 
 val scalaClassroom = Classroom(32)
+// scalaClassroom: Classroom = Classroom(32)
 scalaClassroom.isEmpty
+// res14: Boolean = false
 ```
 
 ---
@@ -384,7 +414,7 @@ scalaClassroom.isEmpty
 
 A sealed trait is a trait where **all sub classes** are defined in the **same file**
 
-```scala mdoc
+```scala
 sealed trait SchoolPersonnel { def name: String }
 
 case class Student(name: String) extends SchoolPersonnel
@@ -393,12 +423,11 @@ case class Teacher(name: String, subject: String) extends SchoolPersonnel
 
 --
 Enum example
-```scala mdoc
+```scala
 sealed trait Weekday
 case object Monday extends Weekday
 case object Tuesday extends Weekday
 case object Wednesday extends Weekday
-//...
 ```
 
 ---
@@ -416,7 +445,7 @@ The combination of `sealed trait` and `case class` gives a convenient way to mod
     - `Car` _case class_ has `color` and `position` members
 
 --
-```scala mdoc
+```scala
 sealed trait Line
 case object EgoLeft extends Line
 case object EgoRight extends Line
@@ -437,50 +466,66 @@ Can you then define a course named “Programming in Scala” targetting beginne
 ---
 # Control Flow
 
-```scala mdoc:reset
+```scala
 val name = "Scala lessons"
+// name: String = "Scala lessons"
 val greatness = if (name.contains("Scala")) {
   "Awesome"
 } else {
   "Regular"
 }
+// greatness: String = "Awesome"
 ```
 
-```scala mdoc
+```scala
 var i = 0
+// i: Int = 0
 while(i < 10) {
   println(s"Count is $i")
   i += 1
 }
+// Count is 0
+// Count is 1
+// Count is 2
+// Count is 3
+// Count is 4
+// Count is 5
+// Count is 6
+// Count is 7
+// Count is 8
+// Count is 9
 ```
 
 ---
 # Pattern matching
 
 Syntax:
-```scala mdoc:reset
+```scala
 val x: Int = scala.util.Random.nextInt(10)
+// x: Int = 8
 val howMany = x match {
   case 0 => "zero"
   case 1 => "one"
   case 2 => "two"
   case _ => "many"
 }
+// howMany: String = "many"
 
 println(s"Value $x is $howMany")
+// Value 8 is many
 ```
 
 ---
 # Pattern matching on case class
 
-```scala mdoc:reset
+```scala
 sealed trait Shape
 case class Rectangle(width: Int, height: Int) extends Shape
 case class Triangle(width: Int, height: Int) extends Shape
 case class Circle(radius: Int) extends Shape
 ```
 
-```scala mdoc
+```scala
 def showShape(shape: Shape) = shape match {
   case Rectangle(w, h) => s"Rectangle of width=$w and height=$h"
   case Triangle(w, h) => s"Triangle of width=$w and height=$h"
@@ -488,6 +533,7 @@ def showShape(shape: Shape) = shape match {
 }
 
 println(showShape(Circle(10)))
+// Circle of radius=10
 ```
 
 ---
@@ -495,7 +541,7 @@ println(showShape(Circle(10)))
 
 - With guard
 
-```scala mdoc
+```scala
 def isSquare(shape: Shape): Boolean = shape match {
   case Rectangle(w, h) if w == h => true
   case _ => false
@@ -504,7 +550,7 @@ def isSquare(shape: Shape): Boolean = shape match {
 
 - On type
 
-```scala mdoc
+```scala
 def showShape2(shape: Shape) = shape match {
   case r: Rectangle => s"Rectangle of width=${r.width} and height=${r.height}"
   case t: Triangle => s"Triangle of width=${t.width} and height=${t.height}"
@@ -512,6 +558,7 @@ def showShape2(shape: Shape) = shape match {
 }
 
 showShape2(Triangle(3,10))
+// res21: String = "Triangle of width=3 and height=10"
 ```
 
 _This is the same as `isInstanceOf`_
@@ -537,18 +584,21 @@ class: center, middle
 Used when something can be absent (value was not found, not provided ...)
 
 We can express it using a trait and sealed class (simplified version of the scala lib)
-```scala mdoc:reset
+```scala
 sealed trait Option[A]
 case class Some[A](value: A) extends Option[A]
 case object None extends Option[Nothing]
 ```
 
 Examples:
-```scala mdoc
+```scala
 Seq.empty[String].headOption
+// res23: scala.Option[String] = None
 Seq("foo", "bar").headOption
+// res24: scala.Option[String] = Some("foo")
 
 Map("foo" -> 1, "bar" -> 2).get("foo")
+// res25: scala.Option[Int] = Some(1)
 ```
 
 ---
@@ -559,19 +609,23 @@ How to deal with them ?
 --
 - Pattern Matching
 
-```scala mdoc:reset
+```scala
 val opt = Option(3)
+// opt: Option[Int] = Some(3)
 opt match {
   case Some(x) => s"Got value $x"
   case None => "No value :("
 }
+// res27: String = "Got value 3"
 ```
 --
 - Functional construct
 
-```scala mdoc:reset
+```scala
 val opt = Option(3)
+// opt: Option[Int] = Some(3)
 opt.fold("No value :(")(x => s"Got value $x")
+// res29: String = "Got value 3"
 ```
 
 _see also .map, .flatMap, .filter, .getOrElse_
@@ -583,23 +637,21 @@ Used to represent a value that can be type `A` or `B`. Mostly used to report err
 
 Eg.: The return of an api call is an error or a String:
 
-```scala mdoc
+```scala
 case class Error(msg: String)
 def getResultFromServer(): Either[Error, Int] = ???
 ```
 
-```scala mdoc:reset:invisible
-case class Error(msg: String)
-def getResultFromServer(): Either[Error, Int] = Left(Error("400: Invalid Api call"))
-```
 
-```scala mdoc
+```scala
 val result = getResultFromServer()
+// result: Either[Error, Int] = Left(Error("400: Invalid Api call"))
 
 result match {
   case Right(x) => s"server result is $x"
   case Left(error) => s"Got error when getting result: $error"
 }
+// res31: String = "Got error when getting result: Error(400: Invalid Api call)"
 ```
 
 ---
@@ -609,11 +661,14 @@ When dealing with errors, by convention the left type represents the error and t
 
 Due to that, `Either` is _right-biased_: `.map`, `.filter` functions will apply on the right type
 
-```scala mdoc
+```scala
 val doubleResult: Either[Error, Int] = result.map(x => x * 2)
+// doubleResult: Either[Error, Int] = Left(Error("400: Invalid Api call"))
 
 val successfulResult: Either[Error, Int] = Right(42)
+// successfulResult: Either[Error, Int] = Right(42)
 val doubleResult2: Either[Error, Int] = successfulResult.map(x => x * 2)
+// doubleResult2: Either[Error, Int] = Right(84)
 ```
 
 ---
@@ -648,16 +703,8 @@ background-size: 100%
 
 ---
 # Standard Collection Overview
-```scala mdoc:invisible:reset
-sealed trait Color
-case object Color {
-  case object red extends Color
-  case object green extends Color
-  case object blue extends Color
-}
-```
 
-```scala mdoc:silent
+```scala
 import scala.collection._
 Iterable("x", "y", "z")
 Map("x" -> 24, "y" -> 25, "z" -> 26)
@@ -675,53 +722,84 @@ mutable.TreeMap("x" -> 24, "y" -> 25, "z" -> 26)
 ---
 # Seq, List, Vector
 
-```scala mdoc
+```scala
 val xs = Seq(1, 2, 3)
+// xs: Seq[Int] = List(1, 2, 3)
 
 xs(0)
+// res42: Int = 1
 // xs(10) // throws Exception
 xs.length // 3
+// res43: Int = 3 // 3
 
 xs.map(x => x + 1)
+// res44: Seq[Int] = List(2, 3, 4)
 xs.filter(x => x > 1)
+// res45: Seq[Int] = List(2, 3)
 val (evens, ods) = xs.partition(x => x % 2 == 0)
+// evens: Seq[Int] = List(2)
+// ods: Seq[Int] = List(1, 3)
 
 val a = List(1, 2, 3)
+// a: List[Int] = List(1, 2, 3)
 val b = Vector(1, 2, 3)
+// b: Vector[Int] = Vector(1, 2, 3)
 a == b
+// res46: Boolean = true
 ```
 
 ---
 # Map
 
-```scala mdoc
+```scala
 val capitals = Map(
   "France" -> "Paris",
   "USA" -> "Washington",
   "China" -> "Beijing"
 )
+// capitals: Map[String, String] = Map(
+//   "France" -> "Paris",
+//   "USA" -> "Washington",
+//   "China" -> "Beijing"
+// )
 
 capitals("France")
+// res47: String = "Paris"
 capitals.get("France")
+// res48: Option[String] = Some("Paris")
 capitals.get("Argentina")
+// res49: Option[String] = None
 
 capitals.getOrElse("Argentina", "Unknown")
+// res50: String = "Unknown"
 
 val updated = capitals ++ Map("Argentina" -> "Buenos Aires")
+// updated: Map[String, String] = Map(
+//   "France" -> "Paris",
+//   "USA" -> "Washington",
+//   "China" -> "Beijing",
+//   "Argentina" -> "Buenos Aires"
+// )
 ```
 
 ---
 # Set
 
-```scala mdoc
+```scala
 val colors = Set("red", "green", "blue")
+// colors: Set[String] = Set("red", "green", "blue")
 
 colors.contains("red")
+// res51: Boolean = true
 colors.contains("white")
+// res52: Boolean = false
 
 colors intersect Set("red", "white")
+// res53: Set[String] = Set("red")
 colors union Set("red", "white")
+// res54: Set[String] = Set("red", "green", "blue", "white")
 colors diff Set("red", "white")
+// res55: Set[String] = Set("green", "blue")
 ```
 
 ---
@@ -740,11 +818,12 @@ Create a class `CourseCatalog` that contains a catalog of `Course`. On this `Cou
 ---
 # For comprehension
 
-```scala mdoc
+```scala
 case class Image(width: Int, height: Int)
 case class Pixel(x: Int, y: Int)
 
 val image: Image = Image(16,16)
+// image: Image = Image(16, 16)
 ```
 
 How get a list of all pixels of an image ?
@@ -752,7 +831,7 @@ How get a list of all pixels of an image ?
 ---
 # For comprehension
 
-```scala mdoc:silent
+```scala
 val pixels: Seq[Pixel] = (0 until image.width).flatMap { x =>
   (0 until image.height).map { y =>
     Pixel(x, y)
@@ -763,15 +842,16 @@ val pixels: Seq[Pixel] = (0 until image.width).flatMap { x =>
 
 This can be rewritten as
 
-```scala mdoc:silent
+```scala
 val pixels2 = for {
   x <- 0 until image.width
   y <- 0 until image.height
 } yield Pixel(x, y)
 ```
 
-```scala mdoc
+```scala
 pixels == pixels2
+// res56: Boolean = true
 ```
 
 ---
@@ -781,12 +861,8 @@ for comprehension are just syntatic sugar. The compiler will translate them to `
 
 They work on all types that define a `.map` `flatMap`
 
-```scala mdoc:invisible
-case class Calculation(c: String)
-case class Id(id: String)
-```
 
-```scala mdoc
+```scala
 def getServerResult(): Either[Error, Int] = ???
 def runCalculation(input: Int): Either[Error, Calculation] = ???
 def storeCalculation(calc: Calculation): Either[Error, Id] = ???
@@ -796,8 +872,6 @@ def storageId: Either[Error, Id] = for {
   calculation <- runCalculation(result)
   id <- storeCalculation(calculation)
 } yield id
-
-// storageId
 ```
 
 ---
@@ -809,7 +883,7 @@ def storageId: Either[Error, Id] = for {
 
 - Composing concurrent tasks in this way tends to result in faster, asynchronous, non-blocking parallel code.
 
-```scala mdoc:reset:silent
+```scala
 import scala.concurrent.{ExecutionContext, Future}
 
 implicit val ec: ExecutionContext = ExecutionContext.global
@@ -822,7 +896,7 @@ val resultFuture : Future[Long] = Future {
 
 --
 
-```scala mdoc:silent
+```scala
 // equivalent to
 val resultFuture2: Future[Long] = Future {
   runExpensiveCalculation() // non-blocking long lasting computation
@@ -858,7 +932,7 @@ Once a Future object is given a value or an exception, it becomes in effect **im
 ---
 # Future
 
-```scala mdoc:reset:silent
+```scala
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -955,7 +1029,7 @@ class: center, middle
 
 A library provides a class `LibList`
 
-```scala mdoc:reset
+```scala
 case class LibList[T](elements: Seq[T]) {
   override def toString(): String = "--LibList--"
 }
@@ -970,18 +1044,20 @@ How can we have a string representation of `LibList` that prints the elements co
 
 ## Solution 1: write your own function
 
-```scala mdoc
+```scala
 def show[T](list: LibList[T]): String = {
   s"LibList(${list.elements.mkString(", ")})"
 }
 ```
 
-```scala mdoc
+```scala
 // Test cases
 
 show(LibList(Seq("a", "b", "c")))
+// res64: String = "LibList(a, b, c)"
 
 show(LibList(Seq(LibList("a"), LibList("b"))))
+// res65: String = "LibList(--LibList--, --LibList--)"
 ```
 
 This does not work in all cases as the elements contained in `LibList` may not have a good `.toString()` functions.
@@ -991,7 +1067,7 @@ This does not work in all cases as the elements contained in `LibList` may not h
 
 ## Solution 2: Runtime introspection
 
-```scala mdoc
+```scala
 def show2[T](list: LibList[T]): String = {
   def showElement(t: T): String = t match {
     case t: LibList[_] => show2(t)
@@ -1001,21 +1077,24 @@ def show2[T](list: LibList[T]): String = {
 }
 ```
 
-```scala mdoc
+```scala
 show2(LibList(Seq("a", "b", "c")))
+// res66: String = "LibList(a, b, c)"
 show2(LibList(Seq(LibList("a"), LibList("b"))))
+// res67: String = "LibList(LibList(a), LibList(b))"
 ```
 
 ---
 # Typeclasses
 
 What happens when we introduce a new class ?
-```scala mdoc
+```scala
 case class LibMap[T](pair: (String, T)) {
   override def toString(): String = "--LibMap--"
 }
 
 show2(LibList(Seq(LibMap("a" -> 3))))
+// res68: String = "LibList(--LibMap--)"
 ```
 
 --
@@ -1027,7 +1106,7 @@ As new classes are added it's hard to keep track of all the places where we need
 
 ## Solution 3: Typeclass or how to make the compiler do all the work
 
-```scala mdoc
+```scala
 trait Show[A] {
   def show(a: A): String
 }
@@ -1035,32 +1114,39 @@ trait Show[A] {
 
 It's a trait that contains the same function as before ! (Just more generic)
 
-```scala mdoc
+```scala
 // define some implementations of Show for our types
 val intShow = new Show[Int] {
   def show(int: Int): String = int.toString
 }
+// intShow: AnyRef with Show[Int] = repl.Session$App63$$anon$1@7e3e79ad
 
 // use it
 intShow.show(42)
+// res69: String = "42"
 ```
 ---
 # Typeclasses
 
 Have the compiler do the work:
-```scala mdoc
+```scala
 def showWithImplicits[A](a: A)(implicit show: Show[A]): String = {
   show.show(a)
 }
 
 implicit val intShowImplicit = intShow
+// intShowImplicit: AnyRef with Show[Int] = repl.Session$App63$$anon$1@7e3e79ad
 showWithImplicits(42)
+// res70: String = "42"
 ```
 
 --
 What happens when no implicits are defined ?
-```scala mdoc:fail
+```scala
 showWithImplicits("toto")
+// error: could not find implicit value for parameter show: App12.this.Show[String]
+// showWithImplicits("toto")
+// ^^^^^^^^^^^^^^^^^^^^^^^^^
 ```
 
 ---
@@ -1068,7 +1154,7 @@ showWithImplicits("toto")
 
 Define an implicit class for our `LibList`
 
-```scala mdoc
+```scala
 implicit def libListShow[T](implicit showT: Show[T]): Show[LibList[T]] =
   new Show[LibList[T]] {
     def show(list: LibList[T]): String = {
@@ -1080,8 +1166,9 @@ implicit def libListShow[T](implicit showT: Show[T]): Show[LibList[T]] =
 - Our typeclass depends on an other implicit `showT: Show[T]`
 - The compiler will find **at compile time** a matching implicit
 
-```scala mdoc
+```scala
 showWithImplicits(LibList(Seq(LibList(Seq(1)), LibList(Seq(2)))))
+// res72: String = "LibList(LibList(1), LibList(2))"
 ```
 
 Will resolve implicits:
@@ -1094,7 +1181,7 @@ Will resolve implicits:
 
 ## Other problem: writing json
 
-```scala mdoc
+```scala
 sealed trait Json
 object Json{
   case class Str(s: String) extends Json
@@ -1111,7 +1198,7 @@ How to implement `convertToJson(x): Json` ?
 
 ## Solution 1: `Any`
 
-```scala mdoc
+```scala
 def convertToJsonAny(x: Any): Json = {
   x match{
     case s: String => Json.Str(s)
@@ -1124,8 +1211,12 @@ def convertToJsonAny(x: Any): Json = {
 
 --
 What about:
-```scala mdoc:crash
+```scala
 convertToJsonAny(new java.io.File("."))
+// scala.MatchError: . (of class java.io.File)
+// 	at repl.Session$App63.convertToJsonAny(index.html:832)
+// 	at repl.Session$App63$$anonfun$124.apply(index.html:845)
+// 	at repl.Session$App63$$anonfun$124.apply(index.html:845)
 ```
 
 We get a `RuntimeError`
@@ -1135,7 +1226,7 @@ We get a `RuntimeError`
 
 ## Solution 2: Using implicits
 
-```scala mdoc
+```scala
 trait Jsonable[T]{
   def serialize(t: T): Json
 }
@@ -1152,7 +1243,7 @@ object Jsonable{
 }
 ```
 
-```scala mdoc
+```scala
 def convertToJson[T](x: T)(implicit converter: Jsonable[T]): Json = {
   converter.serialize(x)
 }
@@ -1163,14 +1254,19 @@ def convertToJson[T](x: T)(implicit converter: Jsonable[T]): Json = {
 
 Usage:
 
-```scala mdoc
+```scala
 convertToJson("hello")
+// res73: Json = Str("hello")
 
 convertToJson(123)
+// res74: Json = Num(123.0)
 ```
 
-```scala mdoc:fail
+```scala
 convertToJson(new java.io.File("."))
+// error: could not find implicit value for parameter converter: App12.this.Jsonable[java.io.File]
+// convertToJson(new java.io.File("."))
+// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ```
 
 Here we get a compilation error which is much better !
